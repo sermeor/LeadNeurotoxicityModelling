@@ -11,7 +11,7 @@ start = datetime.now()
 
 #Time array.
 t_factor = 3600*1000 #Time factor for graphs.
-time = 30*1000/t_factor # Time of simulation depending on t_factor.
+time = 10/t_factor # Time of simulation depending on t_factor.
 sampling_rate = 1*t_factor #number of samples per time factor units.
 time_array = np.linspace(0, time, math.floor(time * sampling_rate + 1))
 
