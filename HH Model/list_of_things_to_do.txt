@@ -1,0 +1,28 @@
+1. 
+
+Poisson random inputs for the following variables: 
+  g_AMPA = 0 
+  g_GABA_A = 0
+  g_NMDA = 0
+  g_GABA_B = 0
+
+
+2. 
+
+Make a function, ext_I(), that applies a positive current to the neuron when there is external electrical stimulation.
+
+def ext_I(t):
+  if t < 5:
+    i = 0
+  elif t>5 && t<7:
+    i = 10
+
+  return i
+
+3. Think about effects on NMDA blockage on electrically stimulated signals:
+ - Resting membrane potential is hyperpolarised. 
+ - Internal calcium changes and effects on pre-synaptic release of neurotransmitters. 
+
+4. Put the two models together. 
+
+ 
