@@ -69,6 +69,9 @@ from Fcns.w_update_AMPA import *
 from Fcns.w_update_GABA_A import *
 from Fcns.w_update_GABA_B import *
 from Fcns.w_update_NMDA import *
+from Fcns.I_VGCC import *
+from Fcns.alpha_c import *
+from Fcns.beta_c import *
 
 
 
@@ -148,9 +151,9 @@ def comp_model(t, y, v2, ssri_molecular_weight, SSRI_start_time, SSRI_repeat_tim
     dy[3] = VTRPin(y[0]) - inhibsyn5HTto5HT(y[11], gstar_5ht_basal) * VTPH(y[3], y[2]) - VPOOL(y[3], y[10]) - a12 * y[3]
     dy[4] = inhibsyn5HTto5HT(y[11], gstar_5ht_basal) * VTPH(y[3], y[2]) - VAADC(y[4])
     dy[5] = VAADC(y[4]) - VMAT(y[5], y[6]) - VMAT(y[5], y[7]) + VSERT(y[8], y[19], ssri, allo_ssri_ki(ssri)) - TCcatab(y[5]) - a15 * (y[5] - y[8])
-    dy[6] = VMAT(y[5], y[6]) - a16 * fireht(y[56], inhibR5HTto5HT(y[11], gstar_5ht_basal) * inhibRHAto5HT(y[15], gstar_ha_basal)) * y[6] + vht_trafficking(y[6], vht_basal)
+    dy[6] = VMAT(y[5], y[6]) - a16 * fireht(y[57], inhibR5HTto5HT(y[11], gstar_5ht_basal) * inhibRHAto5HT(y[15], gstar_ha_basal)) * y[6] + vht_trafficking(y[6], vht_basal)
     dy[7] = VMAT(y[5], y[7]) - a15 * vht_trafficking(y[6], vht_basal)
-    dy[8] = a16 * fireht(y[56], inhibR5HTto5HT(y[11], gstar_5ht_basal) * inhibRHAto5HT(y[15], gstar_ha_basal)) * y[6] - VSERT(y[8], y[19], ssri, allo_ssri_ki(ssri)) - a11 * H1ht(y[8], eht_basal) * VUP2(y[8]) - a14 * y[8] + a8 * (y[5] - y[8]) + a9 * (y[14] - y[8])
+    dy[8] = a16 * fireht(y[57], inhibR5HTto5HT(y[11], gstar_5ht_basal) * inhibRHAto5HT(y[15], gstar_ha_basal)) * y[6] - VSERT(y[8], y[19], ssri, allo_ssri_ki(ssri)) - a11 * H1ht(y[8], eht_basal) * VUP2(y[8]) - a14 * y[8] + a8 * (y[5] - y[8]) + a9 * (y[14] - y[8])
     dy[9] = TCcatab(y[5]) + TCcatab(y[14]) - a10 * y[9] 
     dy[10] = VPOOL(y[3], y[10]) - a13 * y[10]
     dy[11] = a2 * y[13]**2 * (g0 - y[11]) - a3 * y[12] * y[11]  
@@ -333,10 +336,10 @@ def comp_model(t, y, v2, ssri_molecular_weight, SSRI_start_time, SSRI_repeat_tim
     spike_inh = np.random.poisson(rate, 1)
 
     #conductance at baseline, unit: mS
-    g_AMPA = w_AMPA * y[57]
-    g_GABA_A = w_GABA_A * y[58]
-    g_NMDA = w_NMDA * y[59]
-    g_GABA_B = w_GABA_B * y[60]
+    g_AMPA = w_AMPA * y[58]
+    g_GABA_A = w_GABA_A * y[59]
+    g_NMDA = w_NMDA * y[60]
+    g_GABA_B = w_GABA_B * y[61]
 
     spike = spike_boolean(y[51])
     w1 = 0.5 #0.5
@@ -364,27 +367,31 @@ def comp_model(t, y, v2, ssri_molecular_weight, SSRI_start_time, SSRI_repeat_tim
     # y[52] = m, activation gating variable for the voltage-gated sodium (Na+) channels.
     # y[53] = h, activation gating variable for the voltage-gated potassium (K+) channels.
     # y[54] = n, Inactivation gating variable for the Na+ channels.
-    # y[55] = Cai, internal calcium concentration (uM).
-    # y[56] = activity.
-    # y[57] = w_fast_AMPA (synaptic weight of activation of AMPA)
-    # y[58] = w_fast_GABA_A
-    # y[59] = w_slow_NMDA
-    # y[60] = w_slow_GABA_B
+    # y[55] = c, activation gating variable of VGCC channels. 
+    # y[56] = Cai, internal calcium concentration (uM).
+    # y[57] = activity.
+    # y[58] = w_fast_AMPA (synaptic weight of activation of AMPA)
+    # y[59] = w_fast_GABA_A
+    # y[60] = w_slow_NMDA
+    # y[61] = w_slow_GABA_B
 
 
     #Differential equations
     # dy[51] = (- I_Na(y[52], y[53], y[51]) - I_K(y[54], y[51]) - I_L(y[51]) - I_AMPA(g_AMPA, y[51]) - I_NMDA(g_NMDA, y[51]) - I_GABA_A(g_GABA_A, y[51]) - I_GABA_B(g_GABA_B, y[51]) + I_ext(t))/C_m
-    dy[51] = (- I_Na(y[52], y[53], y[51]) - I_K(y[54], y[51]) - I_L(y[51]) + w3*g_AMPA + w4*g_NMDA + w5*g_GABA_A + w6*g_GABA_B + I_ext(t))/C_m
+    dy[51] = (- I_Na(y[52], y[53], y[51]) - I_K(y[54], y[51]) - I_L(y[51]) - I_VGCC(y[55], y[51]) + w3*g_AMPA + w4*g_NMDA + w5*g_GABA_A + w6*g_GABA_B + I_ext(t))/C_m
     dy[52] = alpha_m(y[51])*(1.0 - y[52]) - beta_m(y[51])*y[52]
     dy[53] = alpha_h(y[51])*(1.0 - y[53]) - beta_h(y[51])*y[53]
     dy[54] = alpha_n(y[51])*(1.0 - y[54]) - beta_n(y[51])*y[54]
-    dy[55] = inward_Ca(g_NMDA) - outward_Ca(y[55])
-    dy[56] = w1 * spike * (1 - y[56]) - w2 * y[56]
-    dy[57] = w_update_AMPA(w7, w8, spike_ex, y[57])
-    dy[58] = w_update_GABA_A(w9, w10, spike_inh, y[58])
-    dy[59] = w_update_NMDA(w11, w12, spike_ex, y[59])
-    dy[60] = w_update_GABA_B(w13, w14, spike_inh, y[60])
+    dy[55] = alpha_c(y[51]) * (1 - y[55]) - beta_c(y[51]) * y[55]
+    dy[56] = inward_Ca(g_NMDA, y[51], y[55]) - outward_Ca(y[56]) 
+    dy[57] = w1 * spike * (1 - y[57]) - w2 * y[57]
+    dy[58] = w_update_AMPA(w7, w8, spike_ex, y[58])
+    dy[59] = w_update_GABA_A(w9, w10, spike_inh, y[59])
+    dy[60] = w_update_NMDA(w11, w12, spike_ex, y[60])
+    dy[61] = w_update_GABA_B(w13, w14, spike_inh, y[61])
 
+
+  
     #Change from ms -> h
     dy[51:] = dy[51:]*3600000 #(h-1)
     
