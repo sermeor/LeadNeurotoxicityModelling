@@ -72,8 +72,7 @@ from Fcns.w_update_NMDA import *
 from Fcns.I_VGCC import *
 from Fcns.alpha_c import *
 from Fcns.beta_c import *
-
-
+from Fcns.CaMKIV import *
 
 def comp_model(t, y, v2, ssri_molecular_weight, SSRI_start_time, SSRI_repeat_time, SSRI_q_inj, 
     fmh_molecular_weight, FMH_start_time, FMH_repeat_time, FMH_q_inj, mc_switch, 
@@ -317,11 +316,14 @@ def comp_model(t, y, v2, ssri_molecular_weight, SSRI_start_time, SSRI_repeat_tim
     dy[49] = k13f * (y[47] * (1 - protein_binding_fmh)) - k31f * y[49]
     dy[50] = -k_fmh_inh(fmh) * y[50] + HTDCin(y[50])
     
-    
-    
+
     ##-------------------- HH MODEL -----------------
     # Parameters of HH model
     C_m = 1.0  # membrane capacitance (uF/cm^2)
+    Cao = 1.5 #NEEDS CHANGING
+
+    CaMKIV_bound = CaMKIV(y[56], Cao) #Bound CaMKIV to calcium. 
+    
 
     # Define Poisson input parameters
     rate = 1*2*(1/10)  # firing rate (ms-1).
@@ -344,7 +346,7 @@ def comp_model(t, y, v2, ssri_molecular_weight, SSRI_start_time, SSRI_repeat_tim
     spike = spike_boolean(y[51])
     w1 = 0.5 #0.5
     w2 = 0.001 #0.001
-    w3 = 1.6#0.08 0.4 1.6
+    w3 = 1.6 #0.08 0.4 1.6
     w4 = 0.10 #0.1
     w5 = -1 #1
     w6 = -2 #2
@@ -360,6 +362,8 @@ def comp_model(t, y, v2, ssri_molecular_weight, SSRI_start_time, SSRI_repeat_tim
 
     w13 = 0.001#0.001#increase inhibitory GABA B
     w14 = 0.0005#0.0005 # decrease
+
+    w15 = 10**(-6) #Rate of increase of w_AMPA from CaMKIV bound.
 
 
     # Variable in ODE.
@@ -385,7 +389,7 @@ def comp_model(t, y, v2, ssri_molecular_weight, SSRI_start_time, SSRI_repeat_tim
     dy[55] = alpha_c(y[51]) * (1 - y[55]) - beta_c(y[51]) * y[55]
     dy[56] = inward_Ca(g_NMDA, y[51], y[55]) - outward_Ca(y[56]) 
     dy[57] = w1 * spike * (1 - y[57]) - w2 * y[57]
-    dy[58] = w_update_AMPA(w7, w8, spike_ex, y[58])
+    dy[58] = w_update_AMPA(w7, w8, spike_ex, y[58]) + w15 * (0.5 - CaMKIV_bound)
     dy[59] = w_update_GABA_A(w9, w10, spike_inh, y[59])
     dy[60] = w_update_NMDA(w11, w12, spike_ex, y[60])
     dy[61] = w_update_GABA_B(w13, w14, spike_inh, y[61])
