@@ -7,7 +7,7 @@ def inward_Ca(g_NMDA, Vm, c):
     F = 96485 # Faraday Constant (mA*ms/umol).
     d = 8.4e-6 #Distance of membrane shell where calcium ions enter (cm).
     s = 1000 #conversor umol/(cm^3 * ms) to uM/ms.
-    w = 5
+    w = 0.05
     return - s * (I_VGCC(c, Vm))/(2*F*d) + w*g_NMDA
 
 

@@ -326,16 +326,17 @@ def comp_model(t, y, v2, ssri_molecular_weight, SSRI_start_time, SSRI_repeat_tim
     
 
     # Define Poisson input parameters
-    rate = 1*2*(1/10)  # firing rate (ms-1).
-    w_NMDA = 5
-    w_GABA_A = 1
-    w_AMPA = 5
-    w_GABA_B = 1
+    rate_ex = 1*2*(1/10)  # excitatory firing rate (ms-1).
+    rate_inh = 1*1.5*(1/10) #inhibitory firing rate
+    w_NMDA = 8 #5
+    w_GABA_A = 11 #1
+    w_AMPA = 5 
+    w_GABA_B = 10 #1
     # w1 = 0.75  # Excitatory noise synaptic weight
     # w2 = 0.2 #Inhibitory noise synaptic weight
 
-    spike_ex = np.random.poisson(rate, 1)
-    spike_inh = np.random.poisson(rate, 1)
+    spike_ex = np.random.poisson(rate_ex 1)
+    spike_inh = np.random.poisson(rate_inh, 1)
 
     #conductance at baseline, unit: mS
     g_AMPA = w_AMPA * y[58]
@@ -344,17 +345,17 @@ def comp_model(t, y, v2, ssri_molecular_weight, SSRI_start_time, SSRI_repeat_tim
     g_GABA_B = w_GABA_B * y[61]
 
     spike = spike_boolean(y[51])
-    w1 = 0.5 #0.5
+    w1 = 1 #0.5
     w2 = 0.001 #0.001
-    w3 = 1.6 #0.08 0.4 1.6
+    w3 = 2.2 #0.08 0.4 1.6
     w4 = 0.10 #0.1
     w5 = -1 #1
-    w6 = -2 #2
+    w6 = -1 #2
 
-    w7 = 0.05#0.05# Rate of increase of excitatory w_fast_AMPA from neurotransmitter presence (ms-1).
-    w8 = 0.01#0.0065 # Rate of decrease of excitatory w_fast_AMPA
+    w7 = 0.05 #0.05# Rate of increase of excitatory w_fast_AMPA from neurotransmitter presence (ms-1).
+    w8 = 0.01 #0.0065 # Rate of decrease of excitatory w_fast_AMPA
 
-    w9 = 0.03#0.04 # increase inhibitory GABA A
+    w9 = 0.03 #0.04 # increase inhibitory GABA A
     w10 = 0.008#0.005 # decrease
 
     w11 = 0.01#0.025 # increase excitatory NMDA
@@ -364,7 +365,6 @@ def comp_model(t, y, v2, ssri_molecular_weight, SSRI_start_time, SSRI_repeat_tim
     w14 = 0.0005#0.0005 # decrease
 
     w15 = 10**(-6) #Rate of increase of w_AMPA from CaMKIV bound.
-
 
     # Variable in ODE.
     # y[51] = Vm, membrane potential of neurons.
