@@ -5,7 +5,7 @@ from numba import njit, jit
 def I_ext(t):
   time = t * 1
   if time>= 5000/3600000 and time<=7000/3600000: #stimulation period: 2000ms
-    I=7 #350uA emitted by the probe, but bcs of surface area, cell should experience more current than that
+    I=6 #350uA emitted by the probe, but bcs of surface area, cell should experience more current than that
   else:
     I = 0
   return I

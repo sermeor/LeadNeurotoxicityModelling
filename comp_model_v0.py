@@ -320,7 +320,7 @@ def comp_model(t, y, v2, ssri_molecular_weight, SSRI_start_time, SSRI_repeat_tim
     ##-------------------- HH MODEL -----------------
     # Parameters of HH model
     C_m = 1.0  # membrane capacitance (uF/cm^2)
-    Cao = 1.5 #NEEDS CHANGING
+    Cao = 0.54 #NEEDS CHANGING
 
     CaMKIV_bound = CaMKIV(y[56], Cao) #Bound CaMKIV to calcium. 
     
@@ -328,7 +328,7 @@ def comp_model(t, y, v2, ssri_molecular_weight, SSRI_start_time, SSRI_repeat_tim
     # Define Poisson input parameters
     rate_ex = 1*2*(1/10)  # excitatory firing rate (ms-1).
     rate_inh = 1*1.5*(1/10) #inhibitory firing rate
-    w_NMDA = 8 #5
+    w_NMDA = 1.5 #5
     w_GABA_A = 11 #1
     w_AMPA = 5 
     w_GABA_B = 10 #1
@@ -348,7 +348,7 @@ def comp_model(t, y, v2, ssri_molecular_weight, SSRI_start_time, SSRI_repeat_tim
     w1 = 1 #0.5
     w2 = 0.001 #0.001
     w3 = 2.2 #0.08 0.4 1.6
-    w4 = 0.10 #0.1
+    w4 = 3 #0.1
     w5 = -1 #1
     w6 = -1 #2
 
@@ -381,7 +381,7 @@ def comp_model(t, y, v2, ssri_molecular_weight, SSRI_start_time, SSRI_repeat_tim
 
 
     #Differential equations
-    # dy[51] = (- I_Na(y[52], y[53], y[51]) - I_K(y[54], y[51]) - I_L(y[51]) - I_AMPA(g_AMPA, y[51]) - I_NMDA(g_NMDA, y[51]) - I_GABA_A(g_GABA_A, y[51]) - I_GABA_B(g_GABA_B, y[51]) + I_ext(t))/C_m
+
     dy[51] = (- I_Na(y[52], y[53], y[51]) - I_K(y[54], y[51]) - I_L(y[51]) - I_VGCC(y[55], y[51]) + w3*g_AMPA + w4*g_NMDA + w5*g_GABA_A + w6*g_GABA_B + I_ext(t))/C_m
     dy[52] = alpha_m(y[51])*(1.0 - y[52]) - beta_m(y[51])*y[52]
     dy[53] = alpha_h(y[51])*(1.0 - y[53]) - beta_h(y[51])*y[53]
